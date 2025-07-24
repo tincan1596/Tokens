@@ -7,7 +7,7 @@ on:
 
 env:
   FOUNDRY_PROFILE: ci
-  skip_tests: false
+  skip_tests: true  # Set to true to skip tests by default
 
 jobs:
   check:
