@@ -28,7 +28,7 @@ contract HELPTest is Test {
     }
 
     //Test approve and transferFrom
-    function test_ApproveAndTransferFrom() public {
+    function test_Approval() public {
         help.approve(user1, 200 * 10 ** 18);
         vm.prank(user1); // simulate user1 calling transferFrom
         help.transferFrom(owner, user2, 50 * 10 ** 18);
