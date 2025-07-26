@@ -36,7 +36,7 @@ contract HELPTest is Test {
     }
 
     //Test mint (only owner can mint)
-    function test_MintByOwner() public {
+    function test_Mint() public {
         help.mint(user1, 500 * 10 ** 18);
         assertEq(help.balanceOf(user1), 500 * 10 ** 18, "Minted tokens not assigned");
     }
