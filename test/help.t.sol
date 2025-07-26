@@ -42,14 +42,14 @@ contract HELPTest is Test {
     }
 
     //Test revert when non-owner tries to mint
-    function test_RevertWhen_NonOwnerMints() public {
+    function test_Revert_NonOwnerMints() public {
         vm.prank(user1); // make user1 the caller
         vm.expectRevert(); // expect revert because user1 is not owner
         help.mint(user1, 500 * 10 ** 18);
     }
 
     //Test burn functionality
-    function test_BurnTokens() public {
+    function test_Burn() public {
         uint256 balanceBefore = help.balanceOf(owner);
         help.burn(owner, 100 * 10 ** 18);
         uint256 balanceAfter = help.balanceOf(owner);
