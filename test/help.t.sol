@@ -22,7 +22,7 @@ contract HELPTest is Test {
     }
 
     //Test transfer functionality
-    function test_TransferTokens() public {
+    function test_Transfer() public {
         help.transfer(user1, 100 * 10 ** 18);
         assertEq(help.balanceOf(user1), 100 * 10 ** 18, "User1 should receive tokens");
     }
