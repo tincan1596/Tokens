@@ -26,7 +26,7 @@ abstract contract ERC20 is IERC20 {
 
     uint256 totalSupply;
     mapping(address => uint256) balanceOf;
-    mapping(address => mapping(address => uint256)) allowance;
+    mapping(address => mapping(address => uint256)) allowed;
 
     constructor(uint256 initialSupply) {
         balanceOf[msg.sender] = totalSupply;
@@ -47,7 +47,7 @@ abstract contract ERC20 is IERC20 {
 
     function approve(address spender, uint256 amount) external returns (bool) {
         require(spender != address(0), "Approve to the zero address");
-        allowance[msg.sender][spender] = amount;
+        allowed[msg.sender][spender] = amount;
 
         emit Approval(msg.sender, spender, amount);
         return true;
@@ -56,12 +56,16 @@ abstract contract ERC20 is IERC20 {
     function transferFrom(address from, address to, uint256 ammount) external returns (bool) {
         require(address(0) != to, "Transfer to the zero address");
         require(balanceOf[from] >= ammount, "Insufficient balance");
-        require(allowance[from][msg.sender] >= ammount, "Allowance exceeded");
+        require(allowed[from][msg.sender] >= ammount, "allowed exceeded");
         balanceOf[from] -= ammount;
         balanceOf[to] += ammount;
-        allowance[from][msg.sender] -= ammount;
+        allowed[from][msg.sender] -= ammount;
 
         emit Transfer(from, to, ammount);
         return true;
+    }
+
+    function allowance(address owner, address spender) external view returns (uint256) {
+        return allowed[owner][spender];
     }
 }
