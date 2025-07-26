@@ -15,7 +15,7 @@ contract HELPTest is Test {
     }
 
     //Test initial supply assignment
-    function test_InitialSupplyAssignedToOwner() public view {
+    function test_InitialSupply() public view {
         uint256 supply = help.totalSupply();
         uint256 ownerBalance = help.balanceOf(owner);
         assertEq(ownerBalance, supply, "Initial supply should belong to owner");
