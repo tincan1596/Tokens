@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {HELP} from "../../src/Imports/help.sol";
+import {HELP} from "../src/Imports/help.sol";
 
 contract HELPTest is Test {
     HELP help;
