@@ -14,18 +14,23 @@ contract HELPFuzzTest is Test {
 
     function testFuzz_Transfer(uint96 amount, address to) public {
         vm.assume(to != address(0));
-        vm.assume(amount <= token.balanceOf(owner));
+        amount = uint96(bound(amount, 0, token.balanceOf(owner)));
 
         token.transfer(to, amount);
         assertEq(token.balanceOf(to), amount);
     }
 
-    function testFuzz_ApproveAndTransferFrom(uint96 amount) public {
-        vm.assume(amount <= token.balanceOf(owner));
+    function testFuzz_ApproveAndTransferfrom(uint96 amount, address spender, address recipient) public {
+        amount = uint96(bound(amount, 0, token.balanceOf(owner)));
+        vm.assume(spender != address(0) && spender != address(this) && spender != recipient);
+        vm.assume(recipient != address(0) && recipient != address(this) && recipient != spender);
 
-        token.approve(address(this), amount);
-        token.transferFrom(owner, address(0xBEEF), amount);
+        token.approve(spender, amount);
+        assertEq(token.allowance(owner, spender), amount);
 
-        assertEq(token.balanceOf(address(0xBEEF)), amount);
+        vm.prank(spender);
+        token.transferFrom(owner, recipient, amount);
+        assertEq(token.balanceOf(recipient), amount);
+        assertEq(token.allowance(owner, spender), 0);
     }
 }
