@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {HELP} from "../src/imports/help.sol";
+import {HELP} from "../../src/ERC20/imports/help.sol";
 
 contract HELPUnitTest is Test {
     HELP token;
@@ -15,7 +15,7 @@ contract HELPUnitTest is Test {
     }
 
     // Initial Supply
-    function test_InitialSupplyAssignedToOwner() view public {
+    function test_InitialSupplyAssignedToOwner() public view {
         assertEq(token.totalSupply(), 1000 * 1e18);
         assertEq(token.balanceOf(owner), 1000 * 1e18);
     }
