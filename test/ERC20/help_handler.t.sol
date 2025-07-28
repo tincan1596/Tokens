@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.30;
 
 import {HELP} from "../../src/ERC20/imports/help.sol";
 import {Vm} from "forge-std/Vm.sol";
@@ -24,31 +24,26 @@ contract HELPHandler {
             address actor = address(uint160(uint256(keccak256(abi.encodePacked(block.timestamp, i)))));
             actors.push(actor);
 
-            // Mint 100 tokens to each new actor
             vm.prank(owner);
             token.mint(actor, 100 ether);
         }
     }
 
-    // Manual bound (fallback for Foundry versions without vm.bound)
+    /// Helper to bound a value between min and max (used instead of vm.bound for old Foundry versions)
     function manualBound(uint256 value, uint256 min, uint256 max) internal pure returns (uint256) {
         if (value < min) return min;
         if (value > max) return max;
         return value;
     }
 
-    // Get a random actor index
+    /// Pick a random actor index
     function random() internal view returns (uint256) {
-        uint256 index =
-            uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender))) % actors.length;
-        return index;
+        return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender))) % actors.length;
     }
 
-    // Combined approve + transferFrom
+    /// Combined approve + transferFrom
     function callApproveAndTransferFrom(uint96 amount, address spender, address recipient) public {
-        vm.assume(spender != address(0));
-        vm.assume(recipient != address(0));
-        vm.assume(spender != recipient);
+        if (spender == address(0) || recipient == address(0) || spender == recipient) return;
 
         amount = uint96(manualBound(amount, 0, token.balanceOf(owner)));
 
@@ -60,29 +55,30 @@ contract HELPHandler {
     }
 
     function callTransfer(uint96 amount, address to) public {
-        vm.assume(to != address(0));
+        if (to == address(0)) return;
 
         address sender = actors[random()];
         uint256 bal = token.balanceOf(sender);
-        vm.assume(bal != 0);
+        if (bal == 0) return;
 
         amount = uint96(manualBound(amount, 0, bal));
+
         vm.prank(sender);
         token.transfer(to, amount);
     }
 
     function callMint(uint96 amount, address to) public {
-        vm.assume(to != address(0));
+        if (to == address(0)) return;
 
         vm.prank(owner);
         token.mint(to, amount);
     }
 
     function callBurn(uint96 amount, address from) public {
-        vm.assume(from != address(0));
+        if (from == address(0)) return;
 
         uint256 bal = token.balanceOf(from);
-        vm.assume(bal != 0);
+        if (bal == 0) return;
 
         amount = uint96(manualBound(amount, 0, bal));
 
