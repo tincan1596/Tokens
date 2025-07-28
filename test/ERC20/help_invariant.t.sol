@@ -3,16 +3,16 @@ pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
 import {HELP} from "../../src/ERC20/imports/help.sol";
-import {HelpTokenHandler} from "./help_handler.t.sol";
+import {HELPHandler} from "./help_handler.t.sol";
 
 contract HELPInvariants is Test {
     HELP internal token;
-    HelpTokenHandler internal handler;
+    HELPHandler internal handler;
 
     function setUp() public {
         token = new HELP(1_000_000 ether);
 
-        handler = new HelpTokenHandler(token, vm);
+        handler = new HELPHandler(token, vm);
 
         targetContract(address(handler));
     }
