@@ -18,7 +18,7 @@ contract HELPInvariants is StdInvariant, Test {
         targetContract(address(handler));
 
         // Add handler functions to fuzz/invariant testing
-        bytes4[] memory selectors;
+        bytes4[] memory selectors = new bytes4[](4);
         selectors[0] = handler.callApproveAndTransferFrom.selector;
         selectors[1] = handler.callTransfer.selector;
         selectors[2] = handler.callMint.selector;
