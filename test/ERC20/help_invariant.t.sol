@@ -2,7 +2,6 @@
 pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {Vm} from "forge-std/Vm.sol";
 import {HELP} from "../../src/ERC20/imports/help.sol";
 import {HelpTokenHandler} from "./help_handler.t.sol";
 
@@ -15,13 +14,13 @@ contract HELPInvariants is Test {
         token = new HELP(1_000_000 ether);
 
         // Deploy handler (auto-creates random actors + mints tokens)
-        handler = new HelpTokenHandler(token, Vm(address(vm)));
+        handler = new HelpTokenHandler(token, vm);
 
         // Tell Foundry to use the handler for invariants
         targetContract(address(handler));
     }
 
-    /// ✅ 1. Total supply should always be equal to sum of balances
+    // Total supply should always be equal to sum of balances
     function invariant_TotalSupplyMatchesBalances() public view {
         uint256 total;
         address[] memory actors = handler.getActors();
@@ -33,7 +32,7 @@ contract HELPInvariants is Test {
         assertEq(total, token.totalSupply(), "Total supply mismatch");
     }
 
-    /// ✅ 2. No actor should ever have more tokens than totalSupply
+    // No actor should ever have more tokens than totalSupply
     function invariant_NoActorExceedsSupply() public view {
         address[] memory actors = handler.getActors();
         for (uint256 i = 0; i < actors.length; i++) {
@@ -41,7 +40,7 @@ contract HELPInvariants is Test {
         }
     }
 
-    /// ✅ 3. Allowances should never exceed totalSupply
+    // Allowances should never exceed totalSupply
     function invariant_AllowancesNeverExceedSupply() public view {
         address[] memory actors = handler.getActors();
         for (uint256 i = 0; i < actors.length; i++) {
