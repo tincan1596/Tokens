@@ -37,6 +37,7 @@ contract HELPHandler {
         return value;
     }
 
+    // Get a random actor index
     function random() internal view returns (uint256) {
         uint256 index =
             uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender))) % actors.length;
@@ -45,7 +46,9 @@ contract HELPHandler {
 
     // Combined approve + transferFrom
     function callApproveAndTransferFrom(uint96 amount, address spender, address recipient) public {
-        if (spender == address(0) || recipient == address(0) || spender == recipient) return;
+        vm.assume(spender != address(0));
+        vm.assume(recipient != address(0));
+        vm.assume(spender != recipient);
 
         amount = uint96(manualBound(amount, 0, token.balanceOf(owner)));
 
@@ -57,30 +60,29 @@ contract HELPHandler {
     }
 
     function callTransfer(uint96 amount, address to) public {
-        if (to == address(0)) return;
+        vm.assume(to != address(0));
 
         address sender = actors[random()];
         uint256 bal = token.balanceOf(sender);
-        if (bal == 0) return;
+        vm.assume(bal != 0);
 
         amount = uint96(manualBound(amount, 0, bal));
-
         vm.prank(sender);
         token.transfer(to, amount);
     }
 
     function callMint(uint96 amount, address to) public {
-        if (to == address(0)) return;
+        vm.assume(to != address(0));
 
         vm.prank(owner);
         token.mint(to, amount);
     }
 
     function callBurn(uint96 amount, address from) public {
-        if (from == address(0)) return;
+        vm.assume(from != address(0));
 
         uint256 bal = token.balanceOf(from);
-        if (bal == 0) return;
+        vm.assume(bal != 0);
 
         amount = uint96(manualBound(amount, 0, bal));
 
