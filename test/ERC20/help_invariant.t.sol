@@ -10,13 +10,10 @@ contract HELPInvariants is Test {
     HelpTokenHandler internal handler;
 
     function setUp() public {
-        // Deploy HELP token with initial supply
         token = new HELP(1_000_000 ether);
 
-        // Deploy handler (auto-creates random actors + mints tokens)
         handler = new HelpTokenHandler(token, vm);
 
-        // Tell Foundry to use the handler for invariants
         targetContract(address(handler));
     }
 
