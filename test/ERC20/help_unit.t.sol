@@ -67,4 +67,37 @@ contract HELPUnitTest is Test {
         token.burn(user1, 50 * 1e18);
         assertEq(token.balanceOf(user1), 150 * 1e18);
     }
+
+    // Test that non-owner cannot mint or burn
+    function test_RevertWhen_NonOwnerMints() public {
+        vm.prank(user1);
+        vm.expectRevert();
+        token.mint(user1, 100);
+    }
+
+    function test_RevertWhen_NonOwnerBurns() public {
+        token.mint(user1, 100);
+        vm.prank(user1);
+        vm.expectRevert();
+        token.burn(user1, 50);
+    }
+
+    // Transfer 0 tokens should succeed
+    function test_TransferZeroTokens() public {
+        token.transfer(user1, 0);
+        assertEq(token.balanceOf(user1), 0);
+    }
+
+    // Approve 0 tokens should succeed
+    function test_ApproveZeroTokens() public {
+        token.approve(user1, 0);
+        assertEq(token.allowance(owner, user1), 0);
+    }
+
+    // Burn more than balance should revert
+    function test_RevertWhen_BurningMoreThanBalance() public {
+        token.mint(user1, 50);
+        vm.expectRevert();
+        token.burn(user1, 100);
+    }
 }
