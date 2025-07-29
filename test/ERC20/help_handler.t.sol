@@ -9,73 +9,90 @@ contract HELPHandler {
     Vm internal immutable vm;
     address internal immutable owner;
 
-    address[] public actors;
+    mapping(address => uint256) public actorBalances;
+    address[] public actorList;
 
     constructor(HELP _token, Vm _vm) {
         token = _token;
         vm = _vm;
         owner = _token.owner();
 
-        // Add owner as first actor
-        actors.push(owner);
+        _addActor(owner);
 
-        // Create 4 extra actors & distribute tokens
         for (uint256 i = 0; i < 4; i++) {
-            address actor = address(uint160(uint256(keccak256(abi.encodePacked(block.timestamp, i)))));
-            actors.push(actor);
-
+            address actor = address(uint160(uint256(keccak256(abi.encodePacked(i, block.number)))));
+            _addActor(actor);
             vm.prank(owner);
-            token.mint(actor, 100 ether);
+            token.mint(actor, 10000);
+            actorBalances[actor] = 10000;
         }
+        actorBalances[owner] = token.balanceOf(owner);
     }
 
-    /// Helper to bound a value between min and max (used instead of vm.bound for old Foundry versions)
     function manualBound(uint256 value, uint256 min, uint256 max) internal pure returns (uint256) {
         if (value < min) return min;
         if (value > max) return max;
         return value;
     }
 
-    /// Pick a random actor index
-    function random() internal view returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender))) % actors.length;
+    function _addActor(address addr) internal {
+        if (actorBalances[addr] == 0) {
+            actorList.push(addr);
+        }
     }
 
-    /// Combined approve + transferFrom
-    function callApproveAndTransferFrom(uint96 amount, address spender, address recipient) public {
-        if (spender == address(0) || recipient == address(0) || spender == recipient) return;
+    function callApproveAndTransferFrom(uint96 amount, uint256 seed_spender, uint256 seed_recipient, uint256 seed_main)
+        public
+    {
+        address spender = actorList[seed_spender % actorList.length];
+        address recipient = actorList[seed_recipient % actorList.length];
+        address main = actorList[seed_main % actorList.length];
 
-        amount = uint96(manualBound(amount, 0, token.balanceOf(owner)));
+        if (recipient == address(0) || spender == address(0) || main == address(0) || spender == recipient) return;
 
-        vm.prank(owner);
+        amount = uint96(manualBound(amount, 0, token.balanceOf(main)));
+
+        vm.prank(main);
         token.approve(spender, amount);
 
         vm.prank(spender);
-        token.transferFrom(owner, recipient, amount);
+        token.transferFrom(main, recipient, amount);
+
+        actorBalances[main] -= amount;
+        actorBalances[recipient] += amount;
     }
 
-    function callTransfer(uint96 amount, address to) public {
-        if (to == address(0)) return;
+    function callTransfer(uint96 amount, uint256 seed_sender, address to) public {
+        if (to == address(0) || actorList.length == 0) return;
 
-        address sender = actors[random()];
+        address sender = actorList[seed_sender % actorList.length];
         uint256 bal = token.balanceOf(sender);
         if (bal == 0) return;
 
         amount = uint96(manualBound(amount, 0, bal));
 
+        _addActor(to);
+
         vm.prank(sender);
         token.transfer(to, amount);
+
+        actorBalances[sender] -= amount;
+        actorBalances[to] += amount;
     }
 
     function callMint(uint96 amount, address to) public {
         if (to == address(0)) return;
 
+        _addActor(to);
+
         vm.prank(owner);
         token.mint(to, amount);
+
+        actorBalances[to] += amount;
     }
 
-    function callBurn(uint96 amount, address from) public {
-        if (from == address(0)) return;
+    function callBurn(uint96 amount, uint256 seed_from) public {
+        address from = actorList[seed_from % actorList.length];
 
         uint256 bal = token.balanceOf(from);
         if (bal == 0) return;
@@ -84,9 +101,19 @@ contract HELPHandler {
 
         vm.prank(owner);
         token.burn(from, amount);
+
+        actorBalances[from] -= amount;
+    }
+
+    function totalShadowSupply() public view returns (uint256) {
+        uint256 sum;
+        for (uint256 i = 0; i < actorList.length; i++) {
+            sum += actorBalances[actorList[i]];
+        }
+        return sum;
     }
 
     function getActors() public view returns (address[] memory) {
-        return actors;
+        return actorList;
     }
 }
