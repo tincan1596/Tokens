@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {HELP} from "../../src/ERC20/imports/help.sol";
+import {HELP} from "../src/imports/help.sol";
 
 contract HELPFuzzTest is Test {
     HELP token;

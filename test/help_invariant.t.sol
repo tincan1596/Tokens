@@ -3,7 +3,7 @@ pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
 import {StdInvariant} from "forge-std/StdInvariant.sol";
-import {HELP} from "../../src/ERC20/imports/help.sol";
+import {HELP} from "../src/imports/help.sol";
 import {HELPHandler} from "./help_handler.t.sol";
 
 contract HELPInvariants is StdInvariant, Test {

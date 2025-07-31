@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.30;
 
-import {HELP} from "../../src/ERC20/imports/help.sol";
+import {HELP} from "../src/imports/help.sol";
 import {Vm} from "forge-std/Vm.sol";
 
 contract HELPHandler {
